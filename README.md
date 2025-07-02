@@ -1,46 +1,119 @@
-# Sistema de Análise Financeira
 
-Este projeto é um sistema web para análise financeira de ações, desenvolvido em Python com Flask. Ele permite consultar dados históricos de ativos financeiros, calcular estatísticas como volatilidade e retorno anualizado, e visualizar gráficos interativos.
-
-## Funcionalidades
-
-- Consulta de dados históricos de ações (Yahoo Finance)
-- Cálculo de volatilidade anualizada e retorno anualizado médio
-- Exibição de matriz de correlação entre variáveis
-- Gráficos interativos de preços e retornos com Plotly
-
-## Como rodar
-
-1. Instale as dependências:
-   ```
-   pip install flask pandas numpy yfinance certifi
-   ```
-
-2. Execute o app:
-   ```
-   python app.py
-   ```
-
-3. Acesse no navegador:
-   ```
-   http://127.0.0.1:5000
-   ```
-
-## Estrutura
-
-```
-analise de dados/
-│   app.py
-│
-└───templates/
-    │   index.html
-```
-
-## Observações
-
-- Para ações brasileiras, use o sufixo `.SA` (ex: PETR4.SA).
-- Se tiver problemas de certificado SSL no Windows, veja as instruções no código.
+Este arquivo implementa uma API web simples usando Flask para análise de dados financeiros de ações, com integração ao Yahoo Finance via yfinance. Ele calcula estatísticas como volatilidade, retorno anualizado e correlação, além de fornecer médias móveis.
 
 ---
 
-Desenvolvido por [danielbsn1](https://github.com/danielbsn1)
+## Sumário
+
+- Descrição Geral
+- Requisitos
+- Endpoints
+- Funções Principais
+- Execução
+- Exemplo de Uso
+
+---
+
+## Descrição Geral
+
+O sistema permite consultar dados históricos de um ticker (ação) e retorna:
+- Fechamento diário
+- Média móvel de 20 dias (MA20)
+- Retorno diário
+- Estatísticas: volatilidade anualizada, retorno anualizado e correlação
+
+---
+
+## Requisitos
+
+- Python 3.x
+- Flask
+- pandas
+- numpy
+- yfinance
+- certifi
+
+Instale as dependências com:
+```
+pip install flask pandas numpy yfinance certifi
+```
+
+---
+
+## Endpoints
+
+### `GET /`
+
+Retorna a página inicial (`index.html`).  
+**Uso:** Navegador ou cliente HTTP.
+
+### `POST /get_data`
+
+Recebe um JSON com o ticker da ação e retorna os dados processados.
+
+**Request JSON:**
+```json
+{
+  "ticker": "PETR4.SA"
+}
+```
+
+**Response JSON:**
+```json
+{
+  "dates": [...],
+  "close": [...],
+  "ma20": [...],
+  "return": [...],
+  "stats": {
+    "volatility": ...,
+    "annual_return": ...,
+    "correlation": {...}
+  }
+}
+```
+
+**Códigos de resposta:**
+- 200: Sucesso
+- 400: Ticker não fornecido
+- 404: Dados não encontrados
+- 500: Erro interno
+
+---
+
+## Funções Principais
+
+- **simplify_key(key):**  
+  Simplifica chaves de tupla para string (usado na correlação).
+
+- **calculate_statistics(df):**  
+  Calcula retorno diário, média móvel de 20 dias, volatilidade anualizada, retorno anualizado e correlação entre colunas.
+
+---
+
+## Execução
+
+Execute o arquivo com:
+```
+python Untitled-1.py
+```
+O servidor Flask estará disponível em `http://0.0.0.0:5000`.
+
+---
+
+## Exemplo de Uso
+
+Faça uma requisição POST para `/get_data` com o ticker desejado:
+
+```bash
+curl -X POST http://localhost:5000/get_data -H "Content-Type: application/json" -d "{\"ticker\": \"PETR4.SA\"}"
+```
+
+---
+
+## Observações
+
+- O arquivo espera que exista um template `index.html` na pasta `templates`.
+- O endpoint `/get_data` retorna dados para o último ano do ticker informado.
+- O código já configura corretamente o certificado SSL para evitar erros de conexão com o Yahoo Finance.
+
